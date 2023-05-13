@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>고양이 가라사대</title>
+</head>
+<style>
+  body {
+    text-align: center;
+  }
+
+  .main-card button {
+    position: relative;
+    left: -45px;
+    bottom: 15px;
+  }
+
+  .favorites {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .favorites img {
+    width: 150px;
+  }
+</style>
+
+<body>
+  <div id="app"></div>
+  <!--
+    마크업을 리액트로 다 해서 마크업이 깔끔해짐
+  -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script type="text/babel">
+    const jsonLocalStorage = {
+      setItem: (key, value) => {
+        localStorage.setItem(key, JSON.stringify(value));
+      },
+      getItem: (key) => {
+        return JSON.parse(localStorage.getItem(key));
+      },
+    };
+
+    // const catItem = ( //리액트를 통해 js안에서 html코드 쓰기
+    //   <li>
+    //     <img src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" />
+    //   </li>
+    // );
+
+    function CatItem(props) {
+      return (
+        <li>
+          <img src={props.img} style={{ width: "150px" }} />
+        </li>
+      );
+    }
+
+    // const favorites = (
+    //   <ul class="favorites">
+    //     <CatItem img="https://cataas.com/cat/BxqL2EjFmtxDkAm2/says/inflearn" />
+    //     <CatItem img="https://cataas.com/cat/18MD6byVC1yKGpXp/says/JavaScript" />
+    //   </ul>
+    // );
+
+    function Favorites({ favorites }) {
+      // const CAT1 = "https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react";
+      // const CAT2 = "https://cataas.com/cat/BxqL2EjFmtxDkAm2/says/inflearn";
+      // const CAT3 = "https://cataas.com/cat/18MD6byVC1yKGpXp/says/JavaScript";
+      // const cats = [CAT1, CAT2];
+      return (
+        <ul className="favorites">
+          {favorites.map((cat) => (<CatItem img={cat} key={cat} />))}
+        </ul>
+      );
+    }
+
+    // const mainCard = (
+    //   <div class="main-card">
+    //     <img src="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" alt="고양이" width="400" />
+    //     <button>🤍</button>
+    //   </div>
+    // );
+
+    const MainCard = ({ img, onHeartClick }) => {
+
+      // //function handleMouseOver() {
+      //   console.log("하트 지나감");
+      // }
+
+      return (
+        <div className="main-card">
+          <img src={img} alt="고양이" width="400" />
+          <button onClick={onHeartClick} /*onMouseOver={handleMouseOver}*/>🤍</button>
+        </div>
+      );
+    };
+
+    // const title = <h1>1번째 고양이 가라사대</h1>
+
+    const Title = (props) => {
+      //console.log(props);
+      return (
+        <h1>{props.children}</h1>
+      );
+    };
+
+    // const form = (
+    //   <form>
+    //     <input type="text" name="name" placeholder="영어 대사를 입력해주세요" />
+    //     <button type="submit">생성</button>
+    //   </form>
+    // );
+
+    const Form = ({ updateMainCat }) => {
+      const [value, setValue] = React.useState("");
+      const [errorMessage, setErrorMessage] = React.useState("");
+      const includesHangul = (text) => /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/i.test(text);
+
+      function handleInputChange(e) {  //e가 뭐지 -> event
+        const userValue = e.target.value;
+        setErrorMessage(""); //초기화
+        if (includesHangul(userValue)) {
+          setErrorMessage("한글은 입력할 수 없습니다.");
+        }
+        setValue(userValue.toUpperCase());
+      }
+
+      function handleFormSubmit(e) {
+        e.preventDefault();
+        setErrorMessage("");
+
+        if (value === "") {
+          setErrorMessage("빈 값으로 만들 수 없습니다.");
+          return; //여기서 함수 끝내서 updateMainCat이 되지 않게
+        }
+
+        updateMainCat();
+      }
+
+      return (
+        <form onSubmit={handleFormSubmit}>
+          <input
+            type="text"
+            name="name"
+            placeholder="영어 대사를 입력해주세요"
+            value={value}
+            onChange={handleInputChange}
+          />
+          <button type="submit">생성</button>
+          <p style={{ color: "red" }}>{errorMessage}</p>
+        </form>
+      );
+    };
+
+    // const app = ( //리액트에 그릴 수 있는 건 최상위 태그가 하나여야 해서 추가한 div태그.
+    //   <div>
+    //     <Title>1번째 고양이 가라사대</Title>
+    //     <Form />
+    //     <MainCard img="https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react" />
+    //     <Favorites />
+    //   </div>
+    // )
+
+    const App = () => {
+      const CAT1 = "https://cataas.com/cat/HSENVDU4ZMqy7KQ0/says/react";
+      const CAT2 = "https://cataas.com/cat/BxqL2EjFmtxDkAm2/says/inflearn";
+      const CAT3 = "https://cataas.com/cat/18MD6byVC1yKGpXp/says/JavaScript";
+      const [mainCat, setMainCat] = React.useState(CAT1);
+      const [counter, setCounter] = React.useState(jsonLocalStorage.getItem("counter"));
+      console.log("카운터", counter);
+
+      const [favorites, setFavorites] = React.useState(jsonLocalStorage.getItem("favorites") || []);
+
+
+      function updateMainCat(event) {  //생성을 눌렀을 때 호출되는 함수
+        setMainCat(CAT2);
+        const nextCounter = counter + 1;
+        setCounter(nextCounter);
+        //console.log("카운터", counter); 여기다 쓰면 처음에 안뜸. 생성을 눌러야 뜨게 됨.
+        jsonLocalStorage.setItem("counter", nextCounter);
+      }
+
+      function handleHeartClick() {
+        const nextFavorites = [...favorites, mainCat];
+        setFavorites(nextFavorites);
+        jsonLocalStorage.setItem("favorites", nextFavorites);
+      };
+      return (
+        <div>
+          <Title>{counter}번째 고양이 가라사대</Title>
+          <Form updateMainCat={updateMainCat} />
+          <MainCard img={mainCat} onHeartClick={handleHeartClick} />
+          <Favorites favorites={favorites} />
+        </div>
+      );
+
+    }
+
+    const 여기다가그려 = document.querySelector('#app'); //id값(app)으로 위치 찾아줌
+
+    ReactDOM.createRoot(여기다가그려).render(<App />); //'catItem'사진을 '여기다 그려'에 렌더링
+  </script>
+</body>
+
+</html>
